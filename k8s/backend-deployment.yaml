@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nerv-dashboard-backend
+  namespace: nerv-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nerv-dashboard-backend
+  template:
+    metadata:
+      labels:
+        app: nerv-dashboard-backend
+    spec:
+      serviceAccountName: nerv-dashboard-sa
+      containers:
+        - name: backend
+          image: nerv-dashboard-backend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nerv-dashboard-backend
+  namespace: nerv-dashboard
+spec:
+  selector:
+    app: nerv-dashboard-backend
+  ports:
+    - port: 8000
+      targetPort: 8000
