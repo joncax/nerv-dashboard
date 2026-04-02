@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apps import router as apps_router
-from kubernetes import router as k8s_router
+from k8s_pods import router as k8s_router
 
 app = FastAPI(title="nerv-dashboard API")
 
