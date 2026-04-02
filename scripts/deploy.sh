@@ -10,11 +10,15 @@ git pull origin main
 
 echo "==> Building backend image..."
 cd "$REPO_DIR/backend"
-microk8s ctr images build -t nerv-dashboard-backend:latest .
+docker build -t nerv-dashboard-backend:latest .
+docker save nerv-dashboard-backend:latest | microk8s ctr images import -
+docker rmi nerv-dashboard-backend:latest
 
 echo "==> Building frontend image..."
 cd "$REPO_DIR/frontend"
-microk8s ctr images build -t nerv-dashboard-frontend:latest .
+docker build -t nerv-dashboard-frontend:latest .
+docker save nerv-dashboard-frontend:latest | microk8s ctr images import -
+docker rmi nerv-dashboard-frontend:latest
 
 echo "==> Applying K8s manifests..."
 microk8s kubectl apply -f "$K8S_DIR/namespace.yaml"
