@@ -30,8 +30,10 @@ metadata:
   name: nerv-dashboard-backend
   namespace: nerv-dashboard
 spec:
+  type: NodePort
   selector:
     app: nerv-dashboard-backend
   ports:
     - port: 8000
       targetPort: 8000
+      nodePort: 30081
