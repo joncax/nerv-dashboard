@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { fetchApps, fetchPods, restartPod } from './api/client';
+import { fetchApps, fetchPods, restartPod, fetchSystem } from './api/client';
 import { useAutoRefresh } from './hooks/useAutoRefresh';
 import { Header } from './components/Header';
 import { SummaryCards } from './components/SummaryCards';
 import { AppCard } from './components/AppCard';
 import { PodsTable } from './components/PodsTable';
-import { App, Pod } from './types';
+import { App, Pod, SystemMetrics } from './types';
 
 const KUBE_NAMESPACES = ['kube-system', 'ingress', 'default'];
 
@@ -14,9 +14,10 @@ export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(30);
   const queryClient = useQueryClient();
-
+  
   const { data: apps = [] } = useQuery<App[]>('apps', fetchApps, { refetchInterval: false });
   const { data: pods = [] } = useQuery<Pod[]>('pods', fetchPods, { refetchInterval: false });
+  const { data: system } = useQuery<SystemMetrics>('system', fetchSystem, { refetchInterval: false });
 
   const appPods = pods.filter(p => !KUBE_NAMESPACES.includes(p.namespace));
   const kubePods = pods.filter(p => KUBE_NAMESPACES.includes(p.namespace));
@@ -24,6 +25,7 @@ export default function Dashboard() {
   const refresh = useCallback(() => {
     queryClient.invalidateQueries('apps');
     queryClient.invalidateQueries('pods');
+    queryClient.invalidateQueries('system');
   }, [queryClient]);
 
   useAutoRefresh(refresh, refreshInterval);
@@ -56,7 +58,7 @@ export default function Dashboard() {
         darkMode={darkMode}
         onToggleTheme={handleToggleTheme}
       />
-      <SummaryCards apps={apps} pods={pods} />
+      <SummaryCards apps={apps} pods={pods} system={system}/>
       <div className="section-label">Apps</div>
       <div className="apps-grid">
         {apps.map(app => (

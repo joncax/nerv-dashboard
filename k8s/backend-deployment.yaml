@@ -23,6 +23,16 @@ spec:
           env:
             - name: PYTHONUNBUFFERED
               value: "1"
+            - name: HOST_PROC
+              value: "/host/proc"
+          volumeMounts:
+            - name: host-proc
+              mountPath: /host/proc
+              readOnly: true
+      volumes:
+        - name: host-proc
+          hostPath:
+             path: /proc
 ---
 apiVersion: v1
 kind: Service

@@ -1,11 +1,12 @@
-import { App, Pod } from '../types';
+import { App, Pod, SystemMetrics } from '../types';
 
 interface SummaryCardsProps {
   apps: App[];
   pods: Pod[];
+  system?: SystemMetrics;
 }
 
-export function SummaryCards({ apps, pods }: SummaryCardsProps) {
+export function SummaryCards({ apps, pods, system }: SummaryCardsProps) {
   const appsOnline = apps.filter(a => a.healthy).length;
   const podsRunning = pods.filter(p => p.status === 'Running').length;
 
@@ -33,13 +34,21 @@ export function SummaryCards({ apps, pods }: SummaryCardsProps) {
       </div>
       <div className="summary-card">
         <div className="s-label">RAM</div>
-        <div className="s-value">—</div>
-        <div className="s-sub">via netdata (em breve)</div>
+        <div className="s-value">
+          {system ? `${system.ram.percent}%` : '—'}
+        </div>
+        <div className="s-sub">
+          {system ? `${system.ram.used_gb} / ${system.ram.total_gb} GB` : 'a carregar...'}
+        </div>
       </div>
       <div className="summary-card">
         <div className="s-label">Disco</div>
-        <div className="s-value">—</div>
-        <div className="s-sub">via netdata (em breve)</div>
+        <div className="s-value">
+          {system ? `${system.disk.percent}%` : '—'}
+        </div>
+        <div className="s-sub">
+          {system ? `${system.disk.used_gb} / ${system.disk.total_gb} GB` : 'a carregar...'}
+        </div>
       </div>
     </div>
   );

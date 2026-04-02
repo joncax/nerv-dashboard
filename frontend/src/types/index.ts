@@ -19,3 +19,18 @@ export interface Pod {
   node: string;
   uptime?: string;
 }
+
+export interface SystemMetrics {
+  ram: {
+    total_gb: number;
+    used_gb: number;
+    available_gb: number;
+    percent: number;
+  };
+  disk: {
+    total_gb: number;
+    used_gb: number;
+    free_gb: number;
+    percent: number;
+  };
+}
