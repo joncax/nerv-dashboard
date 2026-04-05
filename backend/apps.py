@@ -58,6 +58,15 @@ APPS = [
         "hostname": "nerv-server-k8s-01.local",
         "category": "download",
     },
+    {
+	"name": "Filebrowser",
+	"icon": "filebrowser",
+	"internal_port": 8080,
+	"node_port": 30082,
+	"ip": "192.168.1.50",
+	"hostname": "nerv-server-k8s-01.local",
+	"category": "tools",
+    },
 ]
 
 async def check_health(ip: str, port: int) -> bool:

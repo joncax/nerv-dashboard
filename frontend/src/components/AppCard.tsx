@@ -12,6 +12,7 @@ const APP_COLORS: Record<string, { bg: string; color: string }> = {
   bazarr:       { bg: '#1e0d2a', color: '#ce93d8' },
   prowlarr:     { bg: '#2a1f0d', color: '#ffb74d' },
   transmission: { bg: '#2a0d0d', color: '#ef9a9a' },
+  filebrowser:  { bg: '#0d2a1a', color: '#80cbc4' },
 };
 
 export function AppCard({ app, onRestart }: AppCardProps) {
