@@ -131,16 +131,13 @@ function FoldersCard({ disks }: FoldersCardProps) {
     ['folders', diskKey],
     () => fetchFolders(diskKey),
     {
-      enabled: false,
-      keepPreviousData: true,
+      enabled: !!loaded[activeDisk],
+      keepPreviousData: false,
     }
   );
 
   const handleTabClick = (name: string) => {
     setActiveDisk(name);
-    if (!loaded[name]) {
-      setLoaded(prev => ({ ...prev, [name]: true }));
-    }
   };
 
   const handleLoad = () => {
