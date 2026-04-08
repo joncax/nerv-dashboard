@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from 'react-query';
-import { fetchDisks, fetchFolders } from '../api/client';
+import { fetchDisks } from '../api/client';
 import { DiskMetrics, FolderEntry } from '../types';
 
 const DISK_KEYS: Record<string, string> = {
