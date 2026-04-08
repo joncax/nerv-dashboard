@@ -53,7 +53,7 @@ def get_folders(disk: str):
 
     try:
         result = subprocess.run(
-            ["du", "-h", "--max-depth=1", mount],
+            ["du", "-h", "--max-depth=1", "--one-file-system", mount],
             capture_output=True,
             text=True,
             timeout=30,
@@ -63,7 +63,7 @@ def get_folders(disk: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    if result.returncode != 0:
+    if result.returncode != 0 and not result.stdout:
         raise HTTPException(status_code=500, detail=result.stderr)
 
     folders = parse_du_output(result.stdout, mount)
