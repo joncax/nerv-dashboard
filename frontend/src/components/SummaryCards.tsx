@@ -1,12 +1,14 @@
-import { App, Pod, SystemMetrics } from '../types';
+import { App, Pod, SystemMetrics, DiskMetrics } from '../types';
+import { StorageSummaryCard } from './StorageSummaryCard';
 
 interface SummaryCardsProps {
   apps: App[];
   pods: Pod[];
   system?: SystemMetrics;
+  disks: DiskMetrics[];
 }
 
-export function SummaryCards({ apps, pods, system }: SummaryCardsProps) {
+export function SummaryCards({ apps, pods, system, disks }: SummaryCardsProps) {
   const appsOnline = apps.filter(a => a.healthy).length;
   const podsRunning = pods.filter(p => p.status === 'Running').length;
 
@@ -19,7 +21,7 @@ export function SummaryCards({ apps, pods, system }: SummaryCardsProps) {
           <span className="s-total"> / {pods.length}</span>
         </div>
         <div className="s-sub">
-          {podsRunning === pods.length ? 'todos running' : `${pods.length - podsRunning} com problemas`}
+          {podsRunning === pods.length ? 'all running' : `${pods.length - podsRunning} with issues`}
         </div>
       </div>
       <div className="summary-card">
@@ -29,7 +31,7 @@ export function SummaryCards({ apps, pods, system }: SummaryCardsProps) {
           <span className="s-total"> / {apps.length}</span>
         </div>
         <div className="s-sub">
-          {appsOnline === apps.length ? 'todas online' : `${apps.length - appsOnline} offline`}
+          {appsOnline === apps.length ? 'all online' : `${apps.length - appsOnline} offline`}
         </div>
       </div>
       <div className="summary-card">
@@ -38,18 +40,10 @@ export function SummaryCards({ apps, pods, system }: SummaryCardsProps) {
           {system ? `${system.ram.percent}%` : '—'}
         </div>
         <div className="s-sub">
-          {system ? `${system.ram.used_gb} / ${system.ram.total_gb} GB` : 'a carregar...'}
+          {system ? `${system.ram.used_gb} / ${system.ram.total_gb} GB` : 'loading...'}
         </div>
       </div>
-      <div className="summary-card">
-        <div className="s-label">Disco</div>
-        <div className="s-value">
-          {system ? `${system.disk.percent}%` : '—'}
-        </div>
-        <div className="s-sub">
-          {system ? `${system.disk.used_gb} / ${system.disk.total_gb} GB` : 'a carregar...'}
-        </div>
-      </div>
+      <StorageSummaryCard disks={disks} />
     </div>
   );
 }
