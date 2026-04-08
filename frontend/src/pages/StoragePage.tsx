@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery } from 'react-query';
-import { fetchDisks } from '../api/client';
+import { fetchFolders } from '../api/client';
 import { DiskMetrics, FolderEntry } from '../types';
 
 const DISK_KEYS: Record<string, string> = {
@@ -123,16 +123,19 @@ function FoldersCard({ disks }: FoldersCardProps) {
     validDisks.find(d => d.status === 'warning')?.name ??
     validDisks[0]?.name ?? ''
   );
-  const [loaded, setLoaded] = useState<Record<string, boolean>>({});
+
+  const loaded = useRef<Record<string, boolean>>({});
+  const [, forceUpdate] = useState(0);
 
   const diskKey = DISK_KEYS[activeDisk] ?? activeDisk.toLowerCase();
 
-  const { data, isFetching, refetch } = useQuery(
+  const { data, isFetching } = useQuery(
     ['folders', diskKey],
     () => fetchFolders(diskKey),
     {
-      enabled: !!loaded[activeDisk],
-      keepPreviousData: false,
+      enabled: !!loaded.current[activeDisk],
+      staleTime: Infinity,
+      cacheTime: Infinity,
     }
   );
 
@@ -141,13 +144,13 @@ function FoldersCard({ disks }: FoldersCardProps) {
   };
 
   const handleLoad = () => {
-    setLoaded(prev => ({ ...prev, [activeDisk]: true }));
-    refetch();
+    loaded.current = { ...loaded.current, [activeDisk]: true };
+    forceUpdate(n => n + 1);
   };
 
   const folders: FolderEntry[] = data?.folders ?? [];
   const maxBytes = folders[0]?.size_bytes ?? 1;
-  const isLoaded = loaded[activeDisk];
+  const isLoaded = !!loaded.current[activeDisk];
 
   return (
     <div className="table-card">
@@ -230,7 +233,7 @@ export function StoragePage({ disks }: StoragePageProps) {
   const criticalCount = validDisks.filter(d => d.status === 'critical').length;
   const warningCount = validDisks.filter(d => d.status === 'warning').length;
 
-  function formatSize(gb: number): string {
+  function formatSz(gb: number): string {
     if (gb >= 1000) return `${(gb / 1024).toFixed(1)} TB`;
     return `${Math.round(gb)} GB`;
   }
@@ -240,18 +243,18 @@ export function StoragePage({ disks }: StoragePageProps) {
       <div className="summary-grid" style={{ marginBottom: '20px' }}>
         <div className="summary-card">
           <div className="s-label">Total capacity</div>
-          <div className="s-value">{formatSize(totalGb)}</div>
+          <div className="s-value">{formatSz(totalGb)}</div>
           <div className="s-sub">{validDisks.length} mounted disks</div>
         </div>
         <div className="summary-card">
           <div className="s-label">Used</div>
-          <div className="s-value" style={{ color: 'var(--color-warn)' }}>{formatSize(usedGb)}</div>
+          <div className="s-value" style={{ color: 'var(--color-warn)' }}>{formatSz(usedGb)}</div>
           <div className="s-sub">{Math.round((usedGb / totalGb) * 100)}% of total</div>
         </div>
         <div className="summary-card">
           <div className="s-label">Available</div>
           <div className="s-value" style={{ color: criticalCount > 0 ? 'var(--color-danger)' : 'var(--color-warn)' }}>
-            {formatSize(freeGb)}
+            {formatSz(freeGb)}
           </div>
           <div className="s-sub">
             {criticalCount > 0
