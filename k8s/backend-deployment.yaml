@@ -13,6 +13,8 @@ spec:
       labels:
         app: nerv-dashboard-backend
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       serviceAccountName: nerv-dashboard-sa
       containers:
         - name: backend
@@ -29,6 +31,8 @@ spec:
               value: "/mnt/MyBook500GB"
             - name: HOST_DISK_PASSPORT
               value: "/mnt/Passport2TB"
+            - name: MAGI_AGENT_URL
+              value: "http://127.0.0.1:8888"
           volumeMounts:
             - name: host-proc
               mountPath: /host/proc
