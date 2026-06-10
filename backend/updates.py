@@ -1,4 +1,5 @@
 import os
+import asyncio
 import httpx
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
@@ -6,6 +7,8 @@ from fastapi.responses import StreamingResponse
 router = APIRouter()
 
 MAGI_URL = os.environ.get("MAGI_AGENT_URL", "http://127.0.0.1:8888")
+
+APPS = ["jellyfin", "sonarr", "radarr", "bazarr", "prowlarr", "transmission", "filebrowser"]
 
 
 async def call_magi(path: str):
@@ -33,27 +36,32 @@ async def list_apps():
     return await call_magi("/apps")
 
 
-@router.get("/{app_name}/info")
-async def app_info(app_name: str):
-    """Digest local + GitHub latest release de uma app."""
-    return await call_magi(f"/apps/{app_name}/info")
-
-
 @router.get("/all/info")
 async def all_apps_info():
     """Info de todas as apps em paralelo."""
-    import asyncio
-
-    apps = ["jellyfin", "sonarr", "radarr", "bazarr", "prowlarr", "transmission", "filebrowser"]
-
     async def fetch_info(app: str):
         try:
             return await call_magi(f"/apps/{app}/info")
         except Exception:
             return {"name": app, "error": "unreachable"}
 
-    results = await asyncio.gather(*[fetch_info(app) for app in apps])
+    results = await asyncio.gather(*[fetch_info(app) for app in APPS])
     return {"apps": list(results)}
+
+
+@router.get("/logs")
+async def get_logs(app: str = None, limit: int = 50):
+    """Activity log do agente magi."""
+    path = f"/logs?limit={limit}"
+    if app:
+        path += f"&app={app}"
+    return await call_magi(path)
+
+
+@router.get("/{app_name}/info")
+async def app_info(app_name: str):
+    """Digest local + GitHub latest release de uma app."""
+    return await call_magi(f"/apps/{app_name}/info")
 
 
 @router.post("/{app_name}/update")
@@ -80,12 +88,3 @@ async def trigger_update(app_name: str):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/logs")
-async def get_logs(app: str = None, limit: int = 50):
-    """Activity log do agente magi."""
-    path = f"/logs?limit={limit}"
-    if app:
-        path += f"&app={app}"
-    return await call_magi(path)
