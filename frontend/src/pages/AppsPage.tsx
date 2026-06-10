@@ -74,7 +74,7 @@ function UpdateDrawer({ app, onClose }: DrawerProps) {
                 <span className="drawer-info-value">{formatDate(app.github.published_at)}</span>
               </div>
               
-                className="drawer-rn-link"
+                <a className="drawer-rn-link"
                 href={app.github.release_url}
                 target="_blank"
                 rel="noreferrer"
