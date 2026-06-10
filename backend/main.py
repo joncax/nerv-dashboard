@@ -5,6 +5,7 @@ from k8s_pods import router as k8s_router
 from system import router as system_router
 from disks import router as disks_router
 from folders import router as folders_router
+from updates import router as updates_router
 
 app = FastAPI(title="nerv-dashboard API")
 
@@ -20,6 +21,7 @@ app.include_router(k8s_router, prefix="/pods", tags=["pods"])
 app.include_router(system_router, prefix="/system", tags=["system"])
 app.include_router(disks_router, prefix="/disks", tags=["disks"])
 app.include_router(folders_router, prefix="/disks/folders", tags=["folders"])
+app.include_router(updates_router, prefix="/updates", tags=["updates"])
 
 @app.get("/health")
 def health():
