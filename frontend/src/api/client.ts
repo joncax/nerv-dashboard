@@ -20,7 +20,6 @@ export const fetchPodMetrics = (): Promise<PodMetricsMap> =>
 export const fetchFolders = (disk: string): Promise<FoldersResponse> =>
   api.get(`/disks/folders/${disk}`).then(r => r.data);
 
-// Updates
 export const fetchAllAppsInfo = (): Promise<{ apps: AppUpdateInfo[] }> =>
   api.get("/updates/all/info").then(r => r.data);
 
@@ -29,12 +28,6 @@ export const fetchAppInfo = (app: string): Promise<AppUpdateInfo> =>
 
 export const fetchActivityLog = (app?: string, limit = 50): Promise<{ logs: ActivityLogEntry[] }> =>
   api.get("/updates/logs", { params: { app, limit } }).then(r => r.data);
-
-export const triggerUpdate = (app: string): EventSource => {
-  const url = `${BASE_URL}/updates/${app}/update`;
-  // POST via fetch para SSE
-  return new EventSource(url);
-};
 
 export const triggerUpdateFetch = async (
   app: string,
@@ -47,6 +40,7 @@ export const triggerUpdateFetch = async (
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const reader = res.body!.getReader();
     const decoder = new TextDecoder();
+    let completed = false;
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -55,12 +49,17 @@ export const triggerUpdateFetch = async (
       for (const line of lines) {
         if (line.startsWith("data: ")) {
           const content = line.slice(6).trim();
-          if (content === "[DONE]") { onDone(); return; }
+          if (content === "[DONE]") {
+            completed = true;
+            onDone();
+            return;
+          }
           if (content) onLine(content);
         }
       }
     }
-    onDone();
+    // stream terminou sem [DONE] — considerar sucesso
+    if (!completed) onDone();
   } catch (e: any) {
     onError(e.message || "Unknown error");
   }
