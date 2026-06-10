@@ -178,7 +178,7 @@ export function AppsPage() {
                   </td>
                   <td>
                     {app.github ? (
-                      
+                      <a
                         href={app.github.release_url}
                         target="_blank"
                         rel="noreferrer"
