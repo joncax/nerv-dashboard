@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from 'react-query';
-import { fetchAllAppsInfo } from '../api/client';
-import { triggerUpdateFetch } from '../api/client';
+import { fetchAllAppsInfo, triggerUpdateFetch } from '../api/client';
 import { AppUpdateInfo } from '../types';
 
 const APP_COLORS: Record<string, { bg: string; color: string }> = {
@@ -15,7 +14,7 @@ const APP_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 function shortDigest(digest: string | null): string {
-  if (!digest) return '—';
+  if (!digest) return '\u2014';
   return digest.replace('sha256:', '').slice(0, 12);
 }
 
@@ -56,7 +55,7 @@ function UpdateDrawer({ app, onClose }: DrawerProps) {
             <div className="drawer-title">Update — {app.name}</div>
             <div className="drawer-subtitle">{app.image}</div>
           </div>
-          <button className="icon-btn" onClick={onClose}>✕</button>
+          <button className="icon-btn" onClick={onClose}>&#x2715;</button>
         </div>
 
         <div className="drawer-body">
@@ -65,7 +64,7 @@ function UpdateDrawer({ app, onClose }: DrawerProps) {
             <span className="drawer-info-value mono">{shortDigest(app.local_digest)}</span>
           </div>
           {app.github && (
-            <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div className="drawer-info-row">
                 <span className="drawer-info-label">Latest version</span>
                 <span className="drawer-info-value">{app.github.latest_version}</span>
@@ -80,9 +79,9 @@ function UpdateDrawer({ app, onClose }: DrawerProps) {
                 target="_blank"
                 rel="noreferrer"
               >
-                Release Notes ↗
+                Release Notes &#x2197;
               </a>
-            </>
+            </div>
           )}
         </div>
 
@@ -91,7 +90,7 @@ function UpdateDrawer({ app, onClose }: DrawerProps) {
             {lines.map((line, i) => (
               <div key={i} className="terminal-line">{line}</div>
             ))}
-            {running && <div className="terminal-line terminal-cursor">▌</div>}
+            {running && <div className="terminal-line terminal-cursor">&#x258c;</div>}
           </div>
         )}
 
@@ -107,10 +106,10 @@ function UpdateDrawer({ app, onClose }: DrawerProps) {
               onClick={handleUpdate}
               disabled={running}
             >
-              {running ? 'A actualizar...' : 'Confirmar Update ▶'}
+              {running ? 'A actualizar...' : 'Confirmar Update'}
             </button>
           ) : (
-            <button className="btn-success" disabled>✓ Concluído</button>
+            <button className="btn-success" disabled>Concluido</button>
           )}
         </div>
       </div>
@@ -130,8 +129,8 @@ export function AppsPage() {
   return (
     <div>
       <div className="apps-page-header">
-        <span className="section-label" style={{ marginBottom: 0 }}>Gestão de Apps</span>
-        <button className="icon-btn" onClick={() => refetch()} title="Refresh">↺</button>
+        <span className="section-label" style={{ marginBottom: 0 }}>Gestao de Apps</span>
+        <button className="icon-btn" onClick={() => refetch()} title="Refresh">&#x21BA;</button>
       </div>
 
       <div className="table-card" style={{ marginTop: '0.75rem' }}>
@@ -141,7 +140,7 @@ export function AppsPage() {
               <th>App</th>
               <th>Imagem</th>
               <th>Digest local</th>
-              <th>Última versão</th>
+              <th>Ultima versao</th>
               <th>Publicada</th>
               <th></th>
             </tr>
@@ -188,11 +187,11 @@ export function AppsPage() {
                         {app.github.latest_version}
                       </a>
                     ) : (
-                      <span style={{ color: 'var(--text-muted)' }}>—</span>
+                      <span style={{ color: 'var(--text-muted)' }}>\u2014</span>
                     )}
                   </td>
                   <td style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
-                    {app.github ? formatDate(app.github.published_at) : '—'}
+                    {app.github ? formatDate(app.github.published_at) : '\u2014'}
                   </td>
                   <td>
                     <button
