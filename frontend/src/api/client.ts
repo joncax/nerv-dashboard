@@ -1,5 +1,5 @@
 import axios from "axios";
-import { DiskMetrics, FoldersResponse, PodMetricsMap } from "../types";
+import { DiskMetrics, FoldersResponse, PodMetricsMap, AppUpdateInfo, ActivityLogEntry } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -19,3 +19,49 @@ export const fetchPodMetrics = (): Promise<PodMetricsMap> =>
   api.get("/pods/metrics").then(r => r.data);
 export const fetchFolders = (disk: string): Promise<FoldersResponse> =>
   api.get(`/disks/folders/${disk}`).then(r => r.data);
+
+// Updates
+export const fetchAllAppsInfo = (): Promise<{ apps: AppUpdateInfo[] }> =>
+  api.get("/updates/all/info").then(r => r.data);
+
+export const fetchAppInfo = (app: string): Promise<AppUpdateInfo> =>
+  api.get(`/updates/${app}/info`).then(r => r.data);
+
+export const fetchActivityLog = (app?: string, limit = 50): Promise<{ logs: ActivityLogEntry[] }> =>
+  api.get("/updates/logs", { params: { app, limit } }).then(r => r.data);
+
+export const triggerUpdate = (app: string): EventSource => {
+  const url = `${BASE_URL}/updates/${app}/update`;
+  // POST via fetch para SSE
+  return new EventSource(url);
+};
+
+export const triggerUpdateFetch = async (
+  app: string,
+  onLine: (line: string) => void,
+  onDone: () => void,
+  onError: (err: string) => void
+) => {
+  try {
+    const res = await fetch(`${BASE_URL}/updates/${app}/update`, { method: "POST" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const reader = res.body!.getReader();
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      const lines = chunk.split("\n");
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          const content = line.slice(6).trim();
+          if (content === "[DONE]") { onDone(); return; }
+          if (content) onLine(content);
+        }
+      }
+    }
+    onDone();
+  } catch (e: any) {
+    onError(e.message || "Unknown error");
+  }
+};
