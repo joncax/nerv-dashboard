@@ -86,6 +86,7 @@ body {
 .app-links { display: flex; flex-direction: column; gap: 3px; }
 .app-link { font-size: 10px; color: #4fc3f7; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .app-link:hover { text-decoration: underline; }
+.app-last-update { font-size: 10px; color: var(--text-secondary); white-space: nowrap; }
 
 /* Pods table */
 .table-card { background: var(--card-bg); border: 0.5px solid var(--card-border); border-radius: 10px; overflow: hidden; margin-bottom: 1.25rem; }

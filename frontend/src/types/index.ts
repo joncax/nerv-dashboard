@@ -8,8 +8,8 @@ export interface App {
   url_ip: string;
   url_hostname: string;
   healthy: boolean;
+  last_update?: string;
 }
-
 export interface Pod {
   name: string;
   namespace: string;
@@ -19,7 +19,6 @@ export interface Pod {
   node: string;
   uptime?: string;
 }
-
 export interface SystemMetrics {
   ram: {
     total_gb: number;
@@ -34,14 +33,12 @@ export interface SystemMetrics {
     percent: number;
   };
 }
-
 export interface InodeMetrics {
   total: number;
   used: number;
   free: number;
   percent: number;
 }
-
 export interface DiskMetrics {
   name: string;
   mount: string;
@@ -53,22 +50,18 @@ export interface DiskMetrics {
   inodes: InodeMetrics | null;
   error?: string;
 }
-
 export interface PodMetrics {
   cpu_m: number;
   mem_mi: number;
 }
-
 export interface PodMetricsMap {
   [key: string]: PodMetrics;
 }
-
 export interface FolderEntry {
   path: string;
   size_human: string;
   size_bytes: number;
 }
-
 export interface FoldersResponse {
   disk: string;
   mount: string;
