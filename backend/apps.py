@@ -1,4 +1,6 @@
 from fastapi import APIRouter
+from kubernetes import client, config
+from datetime import datetime, timezone
 import httpx
 
 router = APIRouter()
@@ -59,15 +61,37 @@ APPS = [
         "category": "download",
     },
     {
-	"name": "Filebrowser",
-	"icon": "filebrowser",
-	"internal_port": 8080,
-	"node_port": 30082,
-	"ip": "192.168.1.50",
-	"hostname": "nerv-server-k8s-01.local",
-	"category": "tools",
+        "name": "Filebrowser",
+        "icon": "filebrowser",
+        "internal_port": 8080,
+        "node_port": 30082,
+        "ip": "192.168.1.50",
+        "hostname": "nerv-server-k8s-01.local",
+        "category": "tools",
     },
 ]
+
+def load_k8s_config():
+    try:
+        config.load_incluster_config()
+    except Exception:
+        config.load_kube_config()
+
+def get_pod_last_update(namespace: str) -> str:
+    try:
+        load_k8s_config()
+        v1 = client.CoreV1Api()
+        pods = v1.list_namespaced_pod(namespace=namespace)
+        if not pods.items:
+            return "—"
+        pod = pods.items[0]
+        start_time = pod.status.start_time
+        if not start_time:
+            return "—"
+        local_time = start_time.astimezone()
+        return local_time.strftime("%-d %b %H:%M")
+    except Exception:
+        return "—"
 
 async def check_health(ip: str, port: int) -> bool:
     try:
@@ -82,10 +106,13 @@ async def get_apps():
     results = []
     for app in APPS:
         healthy = await check_health(app["ip"], app["node_port"])
+        namespace = app["name"].lower()
+        last_update = get_pod_last_update(namespace)
         results.append({
             **app,
             "url_ip": f"http://{app['ip']}:{app['node_port']}",
             "url_hostname": f"http://{app['hostname']}:{app['node_port']}",
             "healthy": healthy,
+            "last_update": last_update,
         })
     return results
