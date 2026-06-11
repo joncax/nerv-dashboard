@@ -8,10 +8,11 @@ import { AppCard } from './components/AppCard';
 import { PodsTable } from './components/PodsTable';
 import { StoragePage } from './pages/StoragePage';
 import { AppsPage } from './pages/AppsPage';
+import { ActivityLogPage } from './pages/ActivityLogPage';
 import { App, Pod, SystemMetrics, DiskMetrics, PodMetricsMap } from './types';
 
 const KUBE_NAMESPACES = ['kube-system', 'ingress', 'default'];
-type Tab = 'overview' | 'pods' | 'storage' | 'apps';
+type Tab = 'overview' | 'pods' | 'storage' | 'apps' | 'activity';
 
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(true);
@@ -62,6 +63,7 @@ export default function Dashboard() {
     { key: 'pods', label: 'Pods' },
     { key: 'storage', label: 'Storage' },
     { key: 'apps', label: 'Apps' },
+    { key: 'activity', label: 'Activity Log' },
   ];
 
   return (
@@ -133,6 +135,10 @@ export default function Dashboard() {
 
       {activeTab === 'apps' && (
         <AppsPage />
+      )}
+
+      {activeTab === 'activity' && (
+        <ActivityLogPage />
       )}
     </div>
   );
