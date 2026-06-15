@@ -71,6 +71,8 @@ export interface AppUpdateInfo {
   name: string;
   image: string;
   local_digest: string | null;
+  installed_version: string | null;
+  installed_recorded_at: string | null;
   error?: string;
   github: {
     latest_version: string;

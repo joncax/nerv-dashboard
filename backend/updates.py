@@ -88,3 +88,16 @@ async def trigger_update(app_name: str):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/{app_name}/verify")
+async def verify_app(app_name: str):
+    """Verifica e regista a versão instalada de uma app."""
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as c:
+            r = await c.post(f"{MAGI_URL}/apps/{app_name}/verify")
+            r.raise_for_status()
+            return r.json()
+    except httpx.ConnectError:
+        raise HTTPException(status_code=503, detail="nerv-update-agent unreachable")
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=str(e))
