@@ -74,8 +74,14 @@ function UpdateDrawer({ app, onClose, onDone }: DrawerProps) {
     setVerifyResult(null);
     try {
       const result = await verifyApp(app.name);
-      setVerifyResult(result.version);
-      onDone();
+      if (result.status === 'no_api') {
+        setVerifyResult('no_api');
+      } else if (result.status === 'ok' && result.version) {
+        setVerifyResult(result.version);
+        onDone();
+      } else {
+        setVerifyResult('error');
+      }
     } catch {
       setVerifyResult('error');
     } finally {
@@ -115,9 +121,14 @@ function UpdateDrawer({ app, onClose, onDone }: DrawerProps) {
                   Release Notes &#x2197;
                 </a>
               )}
-              {verifyResult && verifyResult !== 'error' && (
+              {verifyResult && verifyResult !== 'error' && verifyResult !== 'no_api' && (
                 <div style={{ color: '#4caf50', fontSize: '13px' }}>
                   ✓ Version registered: {verifyResult}
+                </div>
+              )}
+              {verifyResult === 'no_api' && (
+                <div style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+                  No version API available. Version will be registered after first update.
                 </div>
               )}
               {verifyResult === 'error' && (
