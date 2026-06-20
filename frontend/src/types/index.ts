@@ -69,3 +69,26 @@ export interface FoldersResponse {
   mount: string;
   folders: FolderEntry[];
 }
+export interface AppUpdateInfo {
+  name: string;
+  image: string;
+  local_digest: string | null;
+  installed_version: string | null;
+  installed_recorded_at: string | null;
+  error?: string;
+  github: {
+    latest_version: string;
+    release_url: string;
+    published_at: string;
+  } | null;
+}
+export interface ActivityLogEntry {
+  timestamp: string;
+  agent: string;
+  app: string;
+  action: string;
+  status: 'started' | 'success' | 'failed';
+  step?: string;
+  digest_before?: string;
+  digest_after?: string;
+}
