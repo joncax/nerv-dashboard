@@ -9,6 +9,8 @@ export interface App {
   url_hostname: string;
   healthy: boolean;
   last_update?: string;
+  initials?: string;
+  namespace?: string;
 }
 export interface Pod {
   name: string;

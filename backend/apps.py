@@ -69,6 +69,17 @@ APPS = [
         "hostname": "nerv-server-k8s-01.local",
         "category": "tools",
     },
+    {
+        "name": "nerv-pantry",
+        "icon": "nerv-pantry",
+        "initials": "PA",
+        "namespace": "nerv-pantry",
+        "internal_port": 80,
+        "node_port": 30190,
+        "ip": "192.168.1.50",
+        "hostname": "nerv-server-k8s-01.local",
+        "category": "nerv",
+    },
 ]
 
 def load_k8s_config():
@@ -106,7 +117,7 @@ async def get_apps():
     results = []
     for app in APPS:
         healthy = await check_health(app["ip"], app["node_port"])
-        namespace = app["name"].lower()
+        namespace = app.get("namespace", app["name"].lower())
         last_update = get_pod_last_update(namespace)
         results.append({
             **app,
