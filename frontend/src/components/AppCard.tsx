@@ -11,9 +11,10 @@ const APP_COLORS: Record<string, { bg: string; color: string }> = {
   prowlarr:     { bg: '#2a1f0d', color: '#ffb74d' },
   transmission: { bg: '#2a0d0d', color: '#ef9a9a' },
   filebrowser:  { bg: '#0d2a1a', color: '#80cbc4' },
+  "nerv-pantry":  { bg: '#2a1a0d', color: '#ffcc80' },
 };
 export function AppCard({ app, onRestart }: AppCardProps) {
-  const initials = app.name.slice(0, 2).toUpperCase();
+  const initials = app.initials ?? app.name.slice(0, 2).toUpperCase();
   const colors = APP_COLORS[app.name.toLowerCase()] ?? { bg: 'rgba(255,255,255,0.06)', color: '#888899' };
   return (
     <div className="app-card">
