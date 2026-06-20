@@ -9,6 +9,7 @@ import { PodsTable } from './components/PodsTable';
 import { StoragePage } from './pages/StoragePage';
 import { AppsPage } from './pages/AppsPage';
 import { ActivityLogPage } from './pages/ActivityLogPage';
+import { Footer } from './components/Footer';
 import { App, Pod, SystemMetrics, DiskMetrics, PodMetricsMap } from './types';
 
 const KUBE_NAMESPACES = ['kube-system', 'ingress', 'default'];
@@ -140,6 +141,8 @@ export default function Dashboard() {
       {activeTab === 'activity' && (
         <ActivityLogPage />
       )}
+
+      <Footer />
     </div>
   );
 }
