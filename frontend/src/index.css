@@ -328,3 +328,29 @@ tr:hover td { background: var(--hover); }
   color: var(--text-muted);
 }
 .folder-path { color: var(--text-secondary); font-size: 11px; }
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  margin-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.75rem;
+  color: #444455;
+}
+
+.footer-copy {
+  letter-spacing: 0.03em;
+}
+
+.footer-link {
+  color: #444455;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: #888899;
+}
