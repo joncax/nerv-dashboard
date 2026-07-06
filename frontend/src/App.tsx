@@ -1,16 +1,17 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { fetchApps, fetchPods, restartPod, fetchSystem, fetchDisks, fetchPodMetrics } from './api/client';
+import { fetchApps, fetchPods, restartPod, fetchSystem, fetchDisks, fetchPodMetrics, fetchAppsConfig, saveAppsConfig } from './api/client';
 import { useAutoRefresh } from './hooks/useAutoRefresh';
 import { Header } from './components/Header';
 import { SummaryCards } from './components/SummaryCards';
 import { AppCard } from './components/AppCard';
+import { AppConfigModal } from './components/AppConfigModal';
 import { PodsTable } from './components/PodsTable';
 import { StoragePage } from './pages/StoragePage';
 import { AppsPage } from './pages/AppsPage';
 import { ActivityLogPage } from './pages/ActivityLogPage';
 import { Footer } from './components/Footer';
-import { App, Pod, SystemMetrics, DiskMetrics, PodMetricsMap } from './types';
+import { App, Pod, SystemMetrics, DiskMetrics, PodMetricsMap, AppConfig } from './types';
 
 const KUBE_NAMESPACES = ['kube-system', 'ingress', 'default'];
 type Tab = 'overview' | 'pods' | 'storage' | 'apps' | 'activity';
@@ -19,6 +20,7 @@ export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(30);
   const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [configModalOpen, setConfigModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: apps = [] } = useQuery<App[]>('apps', fetchApps, { refetchInterval: false });
@@ -26,6 +28,7 @@ export default function Dashboard() {
   const { data: system } = useQuery<SystemMetrics>('system', fetchSystem, { refetchInterval: false });
   const { data: disks = [] } = useQuery<DiskMetrics[]>('disks', fetchDisks, { refetchInterval: false });
   const { data: podMetrics } = useQuery<PodMetricsMap>('podMetrics', fetchPodMetrics, { refetchInterval: false });
+  const { data: appsConfig = [] } = useQuery<AppConfig[]>('appsConfig', fetchAppsConfig, { refetchInterval: false });
 
   const appPods = pods.filter(p => !KUBE_NAMESPACES.includes(p.namespace));
   const kubePods = pods.filter(p => KUBE_NAMESPACES.includes(p.namespace));
@@ -36,6 +39,7 @@ export default function Dashboard() {
     queryClient.invalidateQueries('system');
     queryClient.invalidateQueries('disks');
     queryClient.invalidateQueries('podMetrics');
+    queryClient.invalidateQueries('appsConfig');
   }, [queryClient]);
 
   useAutoRefresh(refresh, refreshInterval);
@@ -48,7 +52,7 @@ export default function Dashboard() {
   };
 
   const handleRestartApp = async (app: App) => {
-    const pod = appPods.find(p => p.namespace === app.name.toLowerCase());
+    const pod = appPods.find(p => p.namespace === app.namespace);
     if (!pod) return;
     await restartPod(pod.namespace, pod.name);
     setTimeout(refresh, 2000);
@@ -57,6 +61,13 @@ export default function Dashboard() {
   const handleRestartPod = async (pod: Pod) => {
     await restartPod(pod.namespace, pod.name);
     setTimeout(refresh, 2000);
+  };
+
+  const handleSaveConfig = async (config: AppConfig[]) => {
+    await saveAppsConfig(config);
+    setConfigModalOpen(false);
+    queryClient.invalidateQueries('apps');
+    queryClient.invalidateQueries('appsConfig');
   };
 
   const tabs: { key: Tab; label: string }[] = [
@@ -92,10 +103,17 @@ export default function Dashboard() {
 
       {activeTab === 'overview' && (
         <>
-          <div className="section-label">Apps</div>
+          <div className="section-header">
+            <div className="section-label">Apps</div>
+            <button
+              className="icon-btn"
+              title="configure apps"
+              onClick={() => setConfigModalOpen(true)}
+            >⚙</button>
+          </div>
           <div className="apps-grid">
             {apps.map(app => (
-              <AppCard key={app.name} app={app} onRestart={handleRestartApp} />
+              <AppCard key={app.namespace} app={app} onRestart={handleRestartApp} />
             ))}
           </div>
           <PodsTable
@@ -143,6 +161,14 @@ export default function Dashboard() {
       )}
 
       <Footer />
+
+      {configModalOpen && (
+        <AppConfigModal
+          config={appsConfig}
+          onSave={handleSaveConfig}
+          onClose={() => setConfigModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

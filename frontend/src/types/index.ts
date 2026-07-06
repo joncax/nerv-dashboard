@@ -1,17 +1,32 @@
 export interface App {
+  namespace: string;
   name: string;
-  icon: string;
-  node_port: number;
   ip: string;
-  hostname: string;
-  category: string;
+  prod_port: number;
+  dev_port: number | null;
+  has_dev: boolean;
   url_ip: string;
   url_hostname: string;
   healthy: boolean;
   last_update?: string;
-  initials?: string;
-  namespace?: string;
+  visible: boolean;
+  order: number;
+  color_bg: string;
+  color_fg: string;
 }
+
+export interface AppConfig {
+  namespace: string;
+  visible: boolean;
+  order: number;
+  color_bg: string;
+  color_fg: string;
+  prod_port?: number;
+  dev_port?: number | null;
+  has_dev?: boolean;
+  ip?: string;
+}
+
 export interface Pod {
   name: string;
   namespace: string;
@@ -21,6 +36,7 @@ export interface Pod {
   node: string;
   uptime?: string;
 }
+
 export interface SystemMetrics {
   ram: {
     total_gb: number;
@@ -35,12 +51,14 @@ export interface SystemMetrics {
     percent: number;
   };
 }
+
 export interface InodeMetrics {
   total: number;
   used: number;
   free: number;
   percent: number;
 }
+
 export interface DiskMetrics {
   name: string;
   mount: string;
@@ -52,23 +70,28 @@ export interface DiskMetrics {
   inodes: InodeMetrics | null;
   error?: string;
 }
+
 export interface PodMetrics {
   cpu_m: number;
   mem_mi: number;
 }
+
 export interface PodMetricsMap {
   [key: string]: PodMetrics;
 }
+
 export interface FolderEntry {
   path: string;
   size_human: string;
   size_bytes: number;
 }
+
 export interface FoldersResponse {
   disk: string;
   mount: string;
   folders: FolderEntry[];
 }
+
 export interface AppUpdateInfo {
   name: string;
   image: string;
@@ -82,6 +105,7 @@ export interface AppUpdateInfo {
     published_at: string;
   } | null;
 }
+
 export interface ActivityLogEntry {
   timestamp: string;
   agent: string;

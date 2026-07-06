@@ -33,6 +33,8 @@ spec:
               value: "/mnt/Passport2TB"
             - name: MAGI_AGENT_URL
               value: "http://127.0.0.1:8888"
+            - name: APPS_CONFIG_PATH
+              value: "/config/apps_config.json"
           volumeMounts:
             - name: host-proc
               mountPath: /host/proc
@@ -43,6 +45,8 @@ spec:
             - name: host-passport
               mountPath: /mnt/Passport2TB
               readOnly: true
+            - name: nerv-dashboard-config
+              mountPath: /config
       volumes:
         - name: host-proc
           hostPath:
@@ -53,6 +57,9 @@ spec:
         - name: host-passport
           hostPath:
             path: /mnt/Passport2TB
+        - name: nerv-dashboard-config
+          hostPath:
+            path: /opt/nerv-dashboard
 ---
 apiVersion: v1
 kind: Service
