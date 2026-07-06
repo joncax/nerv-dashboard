@@ -1,6 +1,6 @@
 import json
 import os
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body
 from kubernetes import client, config
 import httpx
 
@@ -143,7 +143,7 @@ def get_config():
     return merge_with_config(k8s_apps, config_data)
 
 @router.put("/config")
-def put_config(data: list):
+def put_config(data: list = Body(...)):
     try:
         save_config(data)
         return {"status": "ok"}
