@@ -11,7 +11,7 @@ CONFIG_PATH = os.environ.get("APPS_CONFIG_PATH", "/config/apps_config.json")
 EXCLUDED_NAMESPACES = {
     "kube-system", "kube-public", "kube-node-lease",
     "ingress", "calico-system", "infisical-operator-system",
-    "argocd", "default"
+    "default"
 }
 
 def load_k8s():
